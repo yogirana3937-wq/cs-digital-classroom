@@ -1,54 +1,2355 @@
-<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CS Classroom</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0,user-scalable=no">
+
+<title>CS Digital Classroom</title>
+
+<!-- PeerJS: connects Teacher Phone ↔ Digital Board -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#07111f;color:#fff;font-family:system-ui,sans-serif}header{padding:16px;background:#050b14;border-bottom:2px solid #38506d}header h1{margin:0;color:#38bdf8;font-size:clamp(1.2rem,3vw,2rem)}.wrap{max-width:1400px;margin:auto;padding:18px}.card{background:#101d30;border:2px solid #38506d;border-radius:16px;padding:18px;margin-bottom:16px}button,input{font:inherit}button{padding:12px 16px;min-height:48px;border:2px solid #38506d;border-radius:10px;background:#15243a;color:white;font-weight:800;cursor:pointer}.primary{background:#38bdf8;color:#06111c;border-color:#38bdf8}.green{background:#4ade80;color:#06110c;border-color:#4ade80}input{padding:14px;width:100%;max-width:400px;border:2px solid #38506d;border-radius:10px;background:#07111f;color:white;font-size:1.4rem;letter-spacing:5px;text-align:center}.role{display:flex;gap:10px;flex-wrap:wrap}.hidden{display:none}.title{color:#38bdf8;font-size:clamp(1.8rem,4vw,3rem);font-weight:900}p{font-size:clamp(1rem,1.7vw,1.3rem);line-height:1.6;color:#d7e1ed}.status{font-weight:900;color:#fbbf24}.ok{color:#4ade80}.nav{display:flex;gap:8px;overflow:auto;padding:10px;background:#101d30;border-bottom:2px solid #38506d}.nav button{white-space:nowrap}.active{background:#38bdf8;color:#06111c}.controls{display:flex;gap:10px;flex-wrap:wrap}.images{display:grid;grid-template-columns:1fr 1fr;gap:12px}.images img{width:100%;border:2px solid #38506d;border-radius:12px}.section{border-left:4px solid #38bdf8;padding:10px 15px;margin:14px 0;background:#0c1726;border-radius:8px}.section h3{color:#4ade80;margin:0}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.fact{padding:13px;border:2px solid #fbbf24;border-radius:10px;background:#15243a}.fact b{color:#fbbf24}.board .title{font-size:clamp(2rem,5vw,4.5rem)}.board p{font-size:clamp(1.15rem,2.2vw,1.9rem)}.full{position:fixed;right:15px;top:15px;z-index:5}@media(max-width:800px){.images,.facts{grid-template-columns:1fr}}
-</style></head>
+:root{
+  --bg:#07111f;
+  --panel:#101d30;
+  --panel2:#16263d;
+  --cyan:#38bdf8;
+  --green:#4ade80;
+  --amber:#fbbf24;
+  --pink:#f472b6;
+  --red:#fb7185;
+  --text:#f8fafc;
+  --muted:#b7c5d8;
+  --border:#38506d;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+body{
+  overflow-x:hidden;
+}
+
+button{
+  font:inherit;
+  touch-action:manipulation;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.header{
+  padding:14px 20px;
+  background:#050b14;
+  border-bottom:2px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.header h1{
+  margin:0;
+  color:var(--cyan);
+  font-size:clamp(1.2rem,2.2vw,2rem);
+}
+
+.header-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  border:2px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  padding:11px 16px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:800;
+  min-height:48px;
+}
+
+.btn:hover,
+.btn:focus-visible{
+  border-color:var(--cyan);
+  outline:none;
+}
+
+.btn.primary{
+  background:var(--cyan);
+  color:#04111d;
+  border-color:var(--cyan);
+}
+
+.btn.green{
+  background:var(--green);
+  color:#04120a;
+  border-color:var(--green);
+}
+
+.btn.danger{
+  background:#54233a;
+  border-color:var(--pink);
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#101d30;
+  border:1px solid var(--border);
+  font-weight:700;
+  font-size:.9rem;
+}
+
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--red);
+}
+
+.status-dot.connected{
+  background:var(--green);
+}
+
+.mode-banner{
+  padding:12px 18px;
+  background:#0b1626;
+  border-bottom:2px solid var(--border);
+  text-align:center;
+  font-weight:900;
+  color:var(--amber);
+}
+
+.progress{
+  height:8px;
+  background:#0b1524;
+}
+
+.progress>div{
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    var(--cyan),
+    var(--green)
+  );
+  transition:.3s;
+}
+
+.room-panel{
+  max-width:900px;
+  margin:20px auto;
+  padding:22px;
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:18px;
+}
+
+.room-panel h2{
+  color:var(--cyan);
+  margin-top:0;
+}
+
+.room-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.room-input{
+  flex:1;
+  min-width:220px;
+  padding:15px;
+  border-radius:12px;
+  border:2px solid var(--border);
+  background:#07111f;
+  color:white;
+  font-size:1.3rem;
+  font-weight:900;
+  letter-spacing:5px;
+  text-align:center;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.device-choice{
+  max-width:900px;
+  margin:25px auto;
+  padding:25px;
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:20px;
+}
+
+.device-choice h2{
+  margin-top:0;
+  color:var(--cyan);
+}
+
+.device-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.device-button{
+  min-height:90px;
+  border:2px solid var(--border);
+  border-radius:15px;
+  background:#15243a;
+  color:white;
+  cursor:pointer;
+  font-size:1.2rem;
+  font-weight:900;
+}
+
+.device-button.teacher{
+  background:var(--cyan);
+  color:#04111d;
+}
+
+.device-button.board{
+  background:var(--green);
+  color:#04120a;
+}
+
+.nav{
+  display:flex;
+  gap:9px;
+  overflow-x:auto;
+  padding:12px;
+  background:var(--panel);
+  border-bottom:2px solid var(--border);
+}
+
+.nav button{
+  flex:0 0 auto;
+  min-height:52px;
+  padding:9px 16px;
+  border:2px solid var(--border);
+  border-radius:10px;
+  background:#15243a;
+  color:var(--text);
+  font-weight:800;
+  cursor:pointer;
+}
+
+.nav button.active{
+  background:var(--cyan);
+  color:#06111c;
+  border-color:var(--cyan);
+}
+
+.nav.board-mode button{
+  cursor:default;
+}
+
+main{
+  max-width:1500px;
+  margin:auto;
+  padding:20px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.stage,
+.card{
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.stage-title{
+  padding:14px 18px;
+  background:#0b1626;
+  color:var(--cyan);
+  font-size:1.05rem;
+  font-weight:900;
+  text-align:center;
+}
+
+.visual{
+  min-height:430px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  padding:25px;
+  background:
+    radial-gradient(
+      circle,
+      #172d49 0,
+      #081321 72%
+    );
+  position:relative;
+}
+
+.image-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.topic-image{
+  width:100%;
+  height:210px;
+  object-fit:contain;
+  border:2px solid var(--border);
+  border-radius:14px;
+  background:#081321;
+  padding:8px;
+}
+
+.image-fallback{
+  min-height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px dashed var(--border);
+  border-radius:14px;
+  color:var(--muted);
+  text-align:center;
+  padding:20px;
+}
+
+.visual-icon{
+  font-size:7rem;
+  text-align:center;
+}
+
+.flow{
+  font-size:clamp(1.5rem,3vw,3rem);
+  font-weight:900;
+  text-align:center;
+  line-height:1.7;
+}
+
+.flow span{
+  color:var(--cyan);
+}
+
+.cube{
+  width:140px;
+  height:140px;
+  position:relative;
+  transform-style:preserve-3d;
+  animation:spin 16s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotateX(360deg) rotateY(360deg);
+  }
+}
+
+.face{
+  position:absolute;
+  width:140px;
+  height:140px;
+  border:3px solid var(--cyan);
+  background:#38bdf822;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.1rem;
+  font-weight:900;
+}
+
+.f{transform:translateZ(70px)}
+.b{transform:rotateY(180deg) translateZ(70px)}
+.l{transform:rotateY(-90deg) translateZ(70px)}
+.r{transform:rotateY(90deg) translateZ(70px)}
+.t{transform:rotateX(90deg) translateZ(70px)}
+.bt{transform:rotateX(-90deg) translateZ(70px)}
+
+.info{
+  padding:22px;
+}
+
+h2{
+  margin:0 0 15px;
+  color:var(--cyan);
+  font-size:clamp(1.5rem,2.8vw,2.4rem);
+}
+
+h3{
+  margin:0 0 8px;
+  color:var(--green);
+  font-size:1.05rem;
+  text-transform:uppercase;
+}
+
+p{
+  font-size:clamp(1.05rem,1.6vw,1.35rem);
+  line-height:1.65;
+  color:#d7e1ed;
+  margin:0 0 18px;
+}
+
+.example{
+  background:var(--panel2);
+  border:2px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  margin-top:12px;
+}
+
+.example h3{
+  color:var(--amber);
+}
+
+.fact{
+  background:#111b2a;
+  border:2px solid var(--pink);
+  border-radius:12px;
+  padding:16px;
+  margin-top:12px;
+}
+
+.fact h3{
+  color:var(--pink);
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.quiz{
+  margin-top:18px;
+  padding:18px;
+  background:#0c1726;
+  border:2px solid var(--border);
+  border-radius:12px;
+}
+
+.quiz h3{
+  color:var(--amber);
+}
+
+.options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.option{
+  min-height:58px;
+  border:2px solid var(--border);
+  background:#15243a;
+  color:var(--text);
+  border-radius:10px;
+  padding:10px;
+  cursor:pointer;
+  font-weight:800;
+}
+
+.option.correct{
+  background:#164c2b;
+  border-color:var(--green);
+}
+
+.option.wrong{
+  background:#54233a;
+  border-color:var(--pink);
+}
+
+.feedback{
+  min-height:28px;
+  margin-top:10px;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.bits{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+}
+
+.bit{
+  width:64px;
+  height:90px;
+  border:3px solid var(--border);
+  border-radius:10px;
+  background:#091321;
+  color:var(--text);
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px;
+  font-weight:900;
+}
+
+.bit .value{
+  font-size:1.6rem;
+}
+
+.bit .place{
+  font-size:.9rem;
+}
+
+.bit.on{
+  background:var(--amber);
+  color:#111;
+  border-color:#d97706;
+}
+
+.total{
+  margin-top:18px;
+  padding:12px;
+  border:2px dashed var(--amber);
+  color:var(--amber);
+  font-size:1.4rem;
+  font-weight:900;
+  text-align:center;
+}
+
+.network{
+  width:min(380px,90vw);
+  height:300px;
+  position:relative;
+}
+
+.node{
+  position:absolute;
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  border:3px solid var(--pink);
+  background:#081321;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.75rem;
+  font-weight:900;
+  z-index:2;
+}
+
+.hub{
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:78px;
+  height:78px;
+  border-color:var(--cyan);
+}
+
+.n1{
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+}
+
+.n2{
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.n3{
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+}
+
+.n4{
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.wire{
+  position:absolute;
+  background:#f472b655;
+}
+
+.wv{
+  width:4px;
+  height:100%;
+  left:50%;
+  top:0;
+}
+
+.wh{
+  height:4px;
+  width:100%;
+  top:50%;
+  left:0;
+}
+
+.board-lock{
+  background:#0b1626;
+  border:2px solid var(--green);
+  color:var(--green);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:15px;
+  text-align:center;
+  font-weight:900;
+}
+
+.footer{
+  text-align:center;
+  color:var(--muted);
+  padding:20px;
+}
+
+@media(max-width:900px){
+
+  main{
+    grid-template-columns:1fr;
+  }
+
+  .visual{
+    min-height:320px;
+  }
+
+  .options{
+    grid-template-columns:1fr;
+  }
+
+  .device-buttons{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:600px){
+
+  main{
+    padding:12px;
+  }
+
+  .visual{
+    min-height:270px;
+  }
+
+  .image-grid{
+    grid-template-columns:1fr;
+  }
+
+  .topic-image{
+    height:180px;
+  }
+
+  .cube,
+  .face{
+    width:105px;
+    height:105px;
+  }
+
+  .f{
+    transform:translateZ(52px);
+  }
+
+  .b{
+    transform:rotateY(180deg) translateZ(52px);
+  }
+
+  .l{
+    transform:rotateY(-90deg) translateZ(52px);
+  }
+
+  .r{
+    transform:rotateY(90deg) translateZ(52px);
+  }
+
+  .t{
+    transform:rotateX(90deg) translateZ(52px);
+  }
+
+  .bt{
+    transform:rotateX(-90deg) translateZ(52px);
+  }
+
+  .bit{
+    width:48px;
+    height:76px;
+  }
+}
+</style>
+</head>
+
 <body>
-<header><h1>📚 CS Digital Classroom</h1></header>
-<div id="setup" class="wrap">
-<div class="card"><h2>Choose device</h2><div class="role">
-<button class="primary" onclick="teacher()">👩‍🏫 Teacher Phone</button>
-<button class="green" onclick="board()">🖥️ Digital Board</button></div></div>
-<div id="teacherBox" class="card hidden"><h2>Teacher</h2><p>Choose a simple 6-digit classroom code and start the room.</p>
-<input id="code" inputmode="numeric" maxlength="6" placeholder="123456"><br><br>
-<button class="primary" onclick="startTeacher()">Start Classroom</button><p id="ts" class="status"></p></div>
-<div id="boardBox" class="card hidden"><h2>Digital Board</h2><p>Enter the 6-digit code shown/selected by the teacher. You only need to do this when starting a class.</p>
-<input id="bcode" inputmode="numeric" maxlength="6" placeholder="123456"><br><br>
-<button class="green" onclick="startBoard()">Connect to Teacher</button><p id="bs" class="status"></p></div>
+
+<header class="header">
+
+  <h1>📚 CS Digital Classroom</h1>
+
+  <div class="header-actions">
+
+    <div class="status">
+      <span id="statusDot" class="status-dot"></span>
+      <span id="statusText">Not connected</span>
+    </div>
+
+    <button
+      class="btn"
+      onclick="toggleFullscreen()">
+      ⛶ Full Screen
+    </button>
+
+    <button
+      class="btn"
+      onclick="speak()">
+      🔊 Read
+    </button>
+
+  </div>
+
+</header>
+
+<div
+  id="modeBanner"
+  class="mode-banner">
+  Choose Teacher Phone or Digital Board
 </div>
-<div id="app" class="hidden">
-<button class="primary full" onclick="fs()">⛶ Full Screen</button><nav id="nav" class="nav"></nav>
-<main class="wrap"><div class="card"><div id="live" class="status"></div><div id="title" class="title"></div><p id="overview"></p><div id="controls" class="controls"></div></div>
-<div class="card"><h2>🖼️ Teaching Visuals</h2><div class="images"><img id="img1"><img id="img2"></div></div>
-<div class="card"><h2>📚 Detailed Explanation</h2><div id="sections"></div></div>
-<div class="card"><h2>💡 Topic Facts</h2><div id="facts" class="facts"></div></div></main></div>
+
+<div class="progress">
+  <div id="progress"></div>
+</div>
+
+
+<!-- DEVICE SELECTION -->
+
+<section
+  id="deviceChoice"
+  class="device-choice">
+
+  <h2>Choose Device</h2>
+
+  <p>
+    Use <b>Teacher Phone</b> on your phone.
+    Use <b>Digital Board</b> on the large screen.
+  </p>
+
+  <div class="device-buttons">
+
+    <button
+      class="device-button teacher"
+      onclick="chooseTeacher()">
+
+      👩‍🏫 Teacher Phone
+
+    </button>
+
+    <button
+      class="device-button board"
+      onclick="chooseBoard()">
+
+      🖥️ Digital Board
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- TEACHER ROOM -->
+
+<section
+  id="teacherRoom"
+  class="room-panel hidden">
+
+  <h2>👩‍🏫 Teacher Control</h2>
+
+  <p>
+    Choose a simple 6-digit classroom code.
+    Enter the same code on the Digital Board.
+  </p>
+
+  <div class="room-row">
+
+    <input
+      id="teacherCode"
+      class="room-input"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="123456">
+
+    <button
+      class="btn green"
+      onclick="startTeacher()">
+
+      Start Classroom
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- BOARD ROOM -->
+
+<section
+  id="boardRoom"
+  class="room-panel hidden">
+
+  <h2>🖥️ Digital Board</h2>
+
+  <p>
+    Enter the 6-digit classroom code shown/selected by
+    the teacher.
+  </p>
+
+  <div class="room-row">
+
+    <input
+      id="boardCode"
+      class="room-input"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="123456">
+
+    <button
+      class="btn green"
+      onclick="startBoard()">
+
+      Connect Board
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- CLASSROOM APP -->
+
+<section
+  id="classroom"
+  class="hidden">
+
+  <nav
+    id="nav"
+    class="nav">
+  </nav>
+
+  <main>
+
+    <!-- VISUAL -->
+
+    <section class="stage">
+
+      <div
+        id="visualTitle"
+        class="stage-title">
+        Teaching Visuals
+      </div>
+
+      <div
+        id="visual"
+        class="visual">
+      </div>
+
+    </section>
+
+
+    <!-- LESSON -->
+
+    <section class="card">
+
+      <div class="info">
+
+        <div
+          id="boardLock"
+          class="board-lock hidden">
+          🖥️ DIGITAL BOARD — Teacher Controlled
+        </div>
+
+        <h2 id="title"></h2>
+
+        <h3>📖 Concept</h3>
+
+        <p id="desc"></p>
+
+
+        <div class="example">
+
+          <h3>💡 Classroom Example</h3>
+
+          <p id="example"></p>
+
+        </div>
+
+
+        <div class="fact">
+
+          <h3>⚡ Teaching Point</h3>
+
+          <p id="fact"></p>
+
+        </div>
+
+
+        <div
+          id="teacherControls"
+          class="controls">
+
+          <button
+            class="btn primary"
+            onclick="previousLesson()">
+
+            ← Previous
+
+          </button>
+
+          <button
+            class="btn green"
+            onclick="nextLesson()">
+
+            Next →
+
+          </button>
+
+          <button
+            class="btn"
+            onclick="randomFact()">
+
+            🎲 New Fact
+
+          </button>
+
+        </div>
+
+
+        <div class="quiz">
+
+          <h3>🧠 Quick Classroom Check</h3>
+
+          <p id="question"></p>
+
+          <div
+            id="options"
+            class="options">
+          </div>
+
+          <div
+            id="feedback"
+            class="feedback">
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</section>
+
+
+<div class="footer">
+  CS Digital Classroom • Teacher controlled •
+  Designed for touchscreen and digital-board teaching
+</div>
+
+
 <script>
-const L=[{"title": "1. Computer Characteristics & Components", "overview": "Computers accept input, process information, produce output and store data. Hardware is the physical equipment; software is the instructions and data that make the equipment useful.", "facts": ["CPU executes instructions and coordinates many operations.", "RAM is temporary working memory; storage keeps data when power is removed.", "Input, process, output and storage form a useful introductory model for understanding computer systems."], "sections": [["Core idea", "A computer is a programmable electronic system. It can perform arithmetic, logical operations, comparisons, data movement and communication according to instructions."], ["IPOS cycle", "Input supplies data through keyboards, cameras, microphones, sensors and touchscreens. Processing transforms data. Output communicates results through screens, speakers, printers or actuators. Storage retains information."], ["CPU, RAM and storage", "The CPU executes instructions. RAM provides fast working space for active programs. SSDs and hard drives provide persistent storage. They have different purposes and should not be described as interchangeable."], ["Motherboard and buses", "The motherboard provides physical and electrical connections between major components. Buses and interfaces provide pathways for data and control signals."], ["GPU", "A graphics processing unit is designed for highly parallel operations and is widely used for graphics, visualization and some general-purpose workloads."], ["Input/output devices", "Keyboard, mouse, camera, microphone and sensors are common input devices. Display, speakers and printers are common output devices. Touchscreens can perform both roles."], ["Hardware vs software", "Hardware can be physically touched. Software includes operating systems, applications, drivers and other instructions. Hardware needs software to perform useful tasks."], ["Computer characteristics", "Speed, accuracy, automation, storage, consistency, versatility and connectivity are common characteristics. These are strengths only when the system is correctly designed and supplied with suitable data."], ["Classroom activity", "Ask students to trace a school attendance system through input, processing, output and storage. Then ask them to identify which parts are hardware and which are software."]], "image1": "images/topic1_1.svg", "image2": "images/topic1_2.svg"}, {"title": "2. History of Computing & Evolution", "overview": "Computing developed through many overlapping inventions: manual calculation tools, mechanical devices, electronic components, integrated circuits, microprocessors, personal computers, networks, mobile devices and cloud systems.", "facts": ["The abacus is an early structured calculation aid.", "Transistors replaced vacuum tubes in many systems because they were smaller, more reliable and more efficient.", "The microprocessor placed CPU functionality on a chip and helped enable widespread personal computing."], "sections": [["Early tools", "Tally marks, counting boards and the abacus provided ways to represent quantities and support calculation."], ["Mechanical calculators", "Gear-based machines automated arithmetic. They helped demonstrate that mechanical systems could carry out repeatable calculations."], ["Babbage and Lovelace", "Charles Babbage proposed programmable mechanical machines. Ada Lovelace's notes on the Analytical Engine included an algorithm and are historically significant."], ["Vacuum tubes", "Early electronic computers used vacuum tubes for switching and amplification. They were large and produced substantial heat."], ["Transistors", "Transistors provided smaller and generally more reliable electronic switching, enabling more compact systems."], ["Integrated circuits", "Integrated circuits put multiple electronic components onto chips, improving size, reliability and manufacturing efficiency."], ["Microprocessors", "A microprocessor integrates CPU functions onto a chip. This was a major step toward affordable personal computers and embedded systems."], ["Personal computers", "Personal computers brought interactive computing into homes, schools and offices. Graphical interfaces and peripherals improved usability."], ["Internet, web and mobile", "Networking connected systems. The web made linked information accessible through browsers. Smartphones combined computing, communication, cameras, sensors and applications."], ["Classroom timeline", "Give groups technology cards and ask them to arrange a timeline. Emphasize that technologies overlapped rather than replacing each other overnight."]], "image1": "images/topic2_1.svg", "image2": "images/topic2_2.svg"}, {"title": "3. Word Processing", "overview": "Word processors support creation, editing, formatting, organization, saving and sharing of documents. Good document design emphasizes structure and readability.", "facts": ["Ctrl+S commonly saves a document in many desktop applications.", "Styles help maintain consistent headings and can support automatic tables of contents.", "Spell checking is useful but does not replace proofreading or fact checking."], "sections": [["Document creation", "Start with the purpose, audience and structure. Use meaningful filenames and save early."], ["Editing", "Select, copy, cut, paste, undo, redo, find and replace are core editing operations."], ["Formatting", "Character formatting changes fonts and emphasis. Paragraph formatting controls alignment, indentation, spacing, bullets and numbering."], ["Styles and headings", "Heading styles create a meaningful hierarchy. They are better than manually enlarging every heading because document tools can use the hierarchy for navigation."], ["Tables", "Tables organize related values in rows and columns. Good table design uses clear headings and avoids unnecessary decoration."], ["Images", "Images can clarify concepts, but should be relevant and appropriately sized. Captions and alternative text can improve accessibility."], ["Page layout", "Margins, page size, orientation, headers, footers and page numbers affect printed and digital presentation."], ["Proofreading", "Check spelling, grammar, meaning, facts, formatting and source attribution. Automated checking cannot detect every problem."], ["Responsible use", "Students should respect copyright, cite sources when required and distinguish their own work from copied material."], ["Classroom activity", "Give students a plain page and ask them to turn it into a structured assignment with a title, headings, bullets, table and page number."]], "image1": "images/topic3_1.svg", "image2": "images/topic3_2.svg"}, {"title": "4. PowerPoint Presentations", "overview": "Presentation software combines slides, text, images, diagrams, charts, audio, video and animation to support spoken communication.", "facts": ["A slide should usually communicate one main idea.", "Speaker notes can contain supporting details without crowding the slide.", "Animation is most useful when it reveals a process or focuses attention."], "sections": [["Planning", "Identify audience, learning goal and sequence before choosing a theme."], ["Slide hierarchy", "Titles and headings should make the structure obvious. Avoid filling slides with long paragraphs."], ["Visuals", "Use diagrams for relationships and processes, and charts for numerical patterns. Label important elements."], ["Transitions", "Transitions affect movement between slides. Use them consistently and sparingly."], ["Animations", "Animations can reveal steps, but excessive movement can distract learners."], ["Speaker notes", "Notes help the teacher remember examples, explanations and prompts without placing all text on the screen."], ["Accessibility", "Use readable text, good contrast, captions where appropriate and descriptions for important visual content."], ["Citations", "Images, statistics and quotations may require attribution depending on their source and intended use."], ["Delivery", "Maintain eye contact, explain rather than read, pause for questions and check whether students are following."], ["Classroom activity", "Turn a textbook paragraph into three slides: key idea, visual explanation and summary. Ask students whether the slides improve understanding."]], "image1": "images/topic4_1.svg", "image2": "images/topic4_2.svg"}, {"title": "5. Excel Spreadsheets", "overview": "Spreadsheets organize structured data and calculate results with formulas and functions. They are useful for marks, budgets, inventories, surveys and schedules.", "facts": ["A1 means column A, row 1 in common spreadsheet notation.", "SUM adds values and AVERAGE calculates their arithmetic mean.", "Relative and absolute references behave differently when formulas are copied."], "sections": [["Workbook and worksheet", "A workbook is the file; a worksheet is a sheet inside it. Cells are intersections of rows and columns."], ["Cell references", "A1 identifies a cell. References allow formulas to use values stored elsewhere."], ["Formulas", "Formulas commonly start with = and can use arithmetic operators and parentheses."], ["Functions", "SUM, AVERAGE, MIN, MAX and COUNT are common functions. More advanced functions support logical tests, lookups and text processing."], ["Relative references", "A relative reference changes when a formula is copied to another location."], ["Absolute references", "A reference such as $A$1 can remain fixed when a formula is copied, depending on the spreadsheet software."], ["Charts", "Column/bar charts compare categories; line charts show change over time; other charts suit different questions."], ["Sort and filter", "Sorting changes order; filtering displays matching rows while leaving other data available."], ["Errors", "Check formulas, references, units and assumptions. Compare with manual calculations when practical."], ["Classroom activity", "Build a marks sheet, calculate totals and averages, then create a chart. Change one mark and observe which results update."]], "image1": "images/topic5_1.svg", "image2": "images/topic5_2.svg"}, {"title": "6. Web Architecture", "overview": "The web uses browsers, servers, networks and web technologies to exchange documents and data. HTML provides structure, CSS presentation, and JavaScript behavior.", "facts": ["A browser is a common web client.", "HTTPS uses HTTP over a secure encrypted connection using TLS.", "A single webpage can trigger many requests for scripts, images, fonts, styles and data."], "sections": [["Client and server", "A client requests a service. A server receives requests and returns resources or generated responses."], ["URL and domain", "A URL identifies a resource. Domain names provide human-friendly names that can be resolved to network addresses."], ["HTTP and HTTPS", "HTTP defines web message exchange. HTTPS adds encrypted transport through TLS. Encryption does not automatically mean that a site is trustworthy."], ["HTML, CSS and JavaScript", "HTML structures content, CSS controls presentation, and JavaScript adds behavior and interactivity."], ["Request and response", "A browser can request HTML and then additional resources. Responses contain status information and content."], ["DNS", "The Domain Name System resolves domain names to network addresses and may use cached results."], ["Cookies and sessions", "Cookies can store preferences or session identifiers. Their use has privacy and security implications."], ["Web security", "Secure authentication, input validation, access control and safe data handling are important. Students should only test systems they are authorized to test."], ["Local web apps", "A local server can serve an HTML project over HTTP, avoiding some restrictions associated with directly opening local files."], ["Classroom analogy", "Compare a web interaction with a restaurant: browser = customer, request = order, server = kitchen, response = completed order."]], "image1": "images/topic6_1.svg", "image2": "images/topic6_2.svg"}, {"title": "7. Binary Logic & Number System", "overview": "Binary is the base-2 number system. Computers use bits with two states, commonly represented as 0 and 1, to represent digital information.", "facts": ["One byte is commonly eight bits.", "Eight bits can form 256 different patterns.", "Binary 101 is decimal 5 because 1×4 + 0×2 + 1×1 = 5."], "sections": [["Bits and bytes", "A bit has two possible states. Eight bits make a byte. With n bits, there are 2^n possible patterns."], ["Place values", "Binary places represent powers of two: 1, 2, 4, 8, 16, 32 and so on."], ["Binary to decimal", "Multiply each bit by its place value and add the results."], ["Decimal to binary", "Select powers of two that add to the target number or repeatedly divide by two."], ["Logic gates", "AND, OR and NOT are foundational gates. NAND and NOR are also important in digital logic."], ["Data representation", "Binary patterns can represent numbers, characters, colors, instructions and many other forms depending on the encoding."], ["Signed values", "Systems use methods such as two's complement to represent negative integers."], ["Overflow", "A fixed number of bits limits the range of values. Values outside the range can overflow or be represented differently."], ["Interactive teaching", "Use physical cards labeled 128, 64, 32, 16, 8, 4, 2 and 1. Face up means 1 and face down means 0."], ["Classroom challenge", "Ask students to build a target number using the fewest cards and then explain their method."]], "image1": "images/topic7_1.svg", "image2": "images/topic7_2.svg"}, {"title": "8. Computer Network Topology", "overview": "A network connects devices so they can exchange information. Topology describes how connections are arranged physically or logically.", "facts": ["Star networks commonly use a central switch.", "Mesh topologies provide multiple paths but require more links.", "Real networks often combine several topology ideas rather than using one pure form."], "sections": [["Network devices", "Common devices include switches, routers, wireless access points, endpoints and servers."], ["Star", "Endpoints connect to a central switch or device. A single endpoint link can fail without necessarily stopping other endpoints."], ["Bus", "Devices share a common communication path. It is useful historically for teaching topology."], ["Ring", "Devices form a loop. Protocols determine how data moves around the ring."], ["Mesh", "Multiple connections create alternate paths. Full mesh connects every pair, while partial mesh connects selected devices."], ["Tree", "Hierarchical branches form a tree-like arrangement."], ["Switch vs router", "A switch connects devices within a network and forwards frames. A router connects different networks and forwards packets between them."], ["Performance", "Design considers bandwidth, latency, reliability, scalability, cost and security."], ["Fault tolerance", "Redundant paths can improve resilience but add cost and management complexity."], ["Classroom activity", "Use string or cables to build star, ring and mesh arrangements, then remove one link and discuss the effect."]], "image1": "images/topic8_1.svg", "image2": "images/topic8_2.svg"}, {"title": "9. Programming Languages & Compilers", "overview": "Programming languages allow humans to express algorithms. Translators such as compilers and interpreters convert or execute those instructions in forms the computer can use.", "facts": ["An algorithm is a solution method; source code is an implementation of that method.", "Syntax errors violate grammar; logic errors can occur even when a program runs.", "Compilers can perform stages such as parsing, semantic analysis, optimization and code generation."], "sections": [["Algorithms", "Start with the problem and solution steps before focusing on language syntax."], ["Language levels", "Machine code is directly executable by a processor. Assembly uses symbolic instructions. High-level languages provide more abstraction."], ["Compiler", "A compiler translates source code into another representation, often including machine code, object code or intermediate code."], ["Interpreter", "An interpreter evaluates or executes program representations at runtime. Modern systems may combine compilation and interpretation."], ["Syntax", "Syntax defines the grammar of a programming language."], ["Semantics", "Semantics concerns what valid code means and how it behaves."], ["Build process", "Depending on the language, a build may involve preprocessing, compilation, assembly, linking and packaging."], ["Errors", "Syntax errors stop or disrupt translation. Runtime errors occur during execution. Logic errors produce incorrect results."], ["Testing and debugging", "Reproduce the issue, isolate the cause, make a small change, test again and document the result."], ["Classroom activity", "Write the algorithm for rectangle area in plain language, pseudocode and a programming language. Compare the algorithm with the syntax."]], "image1": "images/topic9_1.svg", "image2": "images/topic9_2.svg"}, {"title": "10. Machine Learning & Artificial Intelligence", "overview": "Artificial intelligence is a broad field. Machine learning is a major approach in which algorithms learn patterns from data and use them to make predictions or decisions.", "facts": ["Training data influences what a model learns.", "Overfitting occurs when a model fits training examples too closely and performs poorly on new data.", "Accuracy is not always sufficient; the evaluation metric should match the task."], "sections": [["AI and ML", "AI is broader than machine learning. Machine learning focuses on learning patterns from data."], ["Training data", "Training examples are used to fit model parameters. In supervised learning, examples usually include labels or target values."], ["Validation and testing", "Validation data can help select or tune models. Test data is held back for final evaluation."], ["Supervised learning", "Classification predicts categories; regression predicts numerical values."], ["Unsupervised learning", "Clustering and dimensionality reduction can discover structure without target labels."], ["Neural networks", "Neural networks use layers of computational units and adjustable parameters. Deep learning uses many layers."], ["Overfitting", "A model may memorize training patterns or noise instead of learning general patterns."], ["Evaluation", "Depending on the problem, useful measures include precision, recall, F1 score, accuracy, mean absolute error and mean squared error."], ["Responsible AI", "Bias, privacy, errors, security and unequal impacts need careful consideration. Human oversight remains important."], ["Classroom activity", "Use a small labeled dataset such as fruit properties. Ask students to classify a new example and discuss why diverse training data matters."]], "image1": "images/topic10_1.svg", "image2": "images/topic10_2.svg"}];let mode="",lesson=0,peer=null,conn=null,code="";
-const $=x=>document.getElementById(x);
-function teacher(){$("teacherBox").classList.remove("hidden");$("boardBox").classList.add("hidden")}
-function board(){$("boardBox").classList.remove("hidden");$("teacherBox").classList.add("hidden")}
-function safeCode(v){return /^\d{6}$/.test(v)?v:null}
+
+/* =========================================================
+   LESSON DATA
+========================================================= */
+
+const lessons = [
+
+{
+  key:"hardware",
+  short:"1. Hardware",
+  title:"1. Computer Characteristics & Components",
+
+  desc:
+  "Computers accept input, process information, produce output and store data. Hardware is the physical equipment of a computer, while software consists of instructions and data.",
+
+  example:
+  "A keyboard provides INPUT, the CPU PROCESSES instructions, the screen gives OUTPUT, and SSD storage keeps information for later use.",
+
+  fact:
+  "The CPU executes instructions, RAM temporarily holds active data, and storage keeps data even after the computer is turned off.",
+
+  visual:"cube",
+  label:"Computer Components",
+
+  q:"What does CPU stand for?",
+  a:[
+    "Central Processing Unit",
+    "Computer Power Utility",
+    "Core Program User"
+  ],
+  correct:0
+},
+
+{
+  key:"history",
+  short:"2. CS History",
+  title:"2. History of Computing & Evolution",
+
+  desc:
+  "Computing developed from simple counting tools to mechanical calculators, electronic computers, personal computers, smartphones and cloud systems.",
+
+  example:
+  "A simple timeline is: Abacus → mechanical calculators → electronic computers → transistors → microprocessors → smartphones → cloud computing.",
+
+  fact:
+  "Early electronic computers could occupy large rooms, while modern computing devices can fit into a pocket.",
+
+  visual:"history",
+  label:"Evolution of Computing",
+
+  q:"Which came first?",
+  a:[
+    "Cloud computing",
+    "The abacus",
+    "Smartphones"
+  ],
+  correct:1
+},
+
+{
+  key:"word",
+  short:"3. Word",
+  title:"3. Word Processing",
+
+  desc:
+  "Word-processing software allows users to create, edit, format, save and print documents. It can also support tables, images, headings and spell checking.",
+
+  example:
+  "A student can prepare an assignment, add headings, insert a table, correct spelling and save the finished document.",
+
+  fact:
+  "Using consistent document styles can make long documents easier to read and can help create a table of contents.",
+
+  visual:"word",
+  label:"Document Processing",
+
+  q:"Which feature checks spelling?",
+  a:[
+    "Spell check",
+    "Slide sorter",
+    "Cell reference"
+  ],
+  correct:0
+},
+
+{
+  key:"ppt",
+  short:"4. PPT",
+  title:"4. PowerPoint Presentations",
+
+  desc:
+  "Presentation software organizes information into slides containing text, images, charts, diagrams, audio, video and animations.",
+
+  example:
+  "A science presentation can use one slide for the introduction, another for a diagram, and later slides for results and conclusions.",
+
+  fact:
+  "A clear presentation usually gives each slide a main idea while the teacher or presenter provides additional explanation.",
+
+  visual:"ppt",
+  label:"Presentation Structure",
+
+  q:"What organizes content in a presentation?",
+  a:[
+    "Slides",
+    "Rows",
+    "Packets"
+  ],
+  correct:0
+},
+
+{
+  key:"excel",
+  short:"5. Excel",
+  title:"5. Excel Spreadsheets",
+
+  desc:
+  "Spreadsheets organize information into rows and columns. A cell can contain text, numbers or formulas.",
+
+  example:
+  "A teacher can enter student marks and calculate totals, averages and percentages using spreadsheet formulas.",
+
+  fact:
+  "A formula can connect cells so changing an input automatically updates related calculations.",
+
+  visual:"excel",
+  label:"Spreadsheet Grid",
+
+  q:"What is A1?",
+  a:[
+    "A cell reference",
+    "A presentation slide",
+    "A network address"
+  ],
+  correct:0
+},
+
+{
+  key:"internet",
+  short:"6. Web",
+  title:"6. Web Architecture",
+
+  desc:
+  "A browser acts as a client. It sends requests to web servers, which return resources such as HTML, CSS, JavaScript, images and data.",
+
+  example:
+  "When you open a website, the browser requests resources and then renders the returned page.",
+
+  fact:
+  "A webpage can require many separate resources, including scripts, images, styles and data.",
+
+  visual:"web",
+  label:"Client → Internet → Server",
+
+  q:"Who sends a web request?",
+  a:[
+    "A browser client",
+    "A spreadsheet cell",
+    "A printer cartridge"
+  ],
+  correct:0
+},
+
+{
+  key:"binary",
+  short:"7. Binary",
+  title:"7. Binary Logic & Number System",
+
+  desc:
+  "Computers represent digital information using bits. A bit has a value of 0 or 1. Groups of bits represent numbers and other forms of data.",
+
+  example:
+  "Binary 101 equals decimal 5 because 1×4 + 0×2 + 1×1 = 5.",
+
+  fact:
+  "Eight bits make one byte. Eight bits can represent 256 different bit patterns.",
+
+  visual:"binary",
+  label:"Interactive Binary Switches",
+
+  q:"What values can one bit have?",
+  a:[
+    "0 or 1",
+    "1 or 2",
+    "Any letter"
+  ],
+  correct:0
+},
+
+{
+  key:"networking",
+  short:"8. Network",
+  title:"8. Computer Network Topology",
+
+  desc:
+  "Network topology describes how computers and other devices are arranged and connected. Common topologies include star, bus, ring, mesh and tree.",
+
+  example:
+  "In a star topology, computers connect to a central switch. One endpoint can fail without necessarily stopping the other endpoints.",
+
+  fact:
+  "If the central switch in a star network fails, communication through that switch can be affected.",
+
+  visual:"network",
+  label:"Star Network Topology",
+
+  q:"What is at the center of a star topology?",
+  a:[
+    "A central switch",
+    "A spreadsheet",
+    "A compiler"
+  ],
+  correct:0
+},
+
+{
+  key:"programming",
+  short:"9. Compilers",
+  title:"9. Programming Languages & Compilers",
+
+  desc:
+  "Programming languages allow people to write instructions for computers. A compiler translates source code into a form that can be executed or further processed.",
+
+  example:
+  "A programmer writes C or C++ source code and a compiler processes that source code to produce executable or machine-oriented output.",
+
+  fact:
+  "A compiler can detect many syntax errors, but successful compilation does not guarantee that a program's logic is correct.",
+
+  visual:"compiler",
+  label:"Source Code → Compiler → Program",
+
+  q:"What does a compiler do?",
+  a:[
+    "Translates source code",
+    "Draws network wires",
+    "Stores photos"
+  ],
+  correct:0
+},
+
+{
+  key:"ai",
+  short:"10. AI/ML",
+  title:"10. Machine Learning & Artificial Intelligence",
+
+  desc:
+  "Machine learning uses algorithms that learn patterns from data and use those patterns to make predictions or decisions.",
+
+  example:
+  "A model can learn to distinguish cats from other objects by training on many labeled images.",
+
+  fact:
+  "A model may perform well on training data but poorly on new data. This situation is called overfitting.",
+
+  visual:"ai",
+  label:"Machine Learning Pipeline",
+
+  q:"What does a machine-learning model learn from?",
+  a:[
+    "Data",
+    "Power cables",
+    "Slide numbers"
+  ],
+  correct:0
+}
+
+];
+
+
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
+
+let current = 0;
+let answered = new Set();
+
+let mode = null;
+let peer = null;
+let connection = null;
+let classroomCode = "";
+
+const PEER_PREFIX = "cs-digital-classroom-";
+
+
+/* =========================================================
+   BASIC UI
+========================================================= */
+
+function setStatus(text, connected=false){
+
+  document.getElementById("statusText").textContent = text;
+
+  const dot = document.getElementById("statusDot");
+
+  dot.classList.toggle("connected", connected);
+}
+
+
+function setModeBanner(text){
+  document.getElementById("modeBanner").textContent = text;
+}
+
+
+function show(id){
+  document.getElementById(id).classList.remove("hidden");
+}
+
+
+function hide(id){
+  document.getElementById(id).classList.add("hidden");
+}
+
+
+/* =========================================================
+   DEVICE SELECTION
+========================================================= */
+
+function chooseTeacher(){
+
+  mode = "teacher";
+
+  hide("deviceChoice");
+  show("teacherRoom");
+
+  setModeBanner("👩‍🏫 Teacher Phone — Create Classroom");
+
+  setStatus("Waiting for classroom");
+
+  document.getElementById("teacherCode").focus();
+}
+
+
+function chooseBoard(){
+
+  mode = "board";
+
+  hide("deviceChoice");
+  show("boardRoom");
+
+  setModeBanner("🖥️ Digital Board — Join Classroom");
+
+  setStatus("Waiting for teacher");
+
+  document.getElementById("boardCode").focus();
+}
+
+
+/* =========================================================
+   CLASSROOM START
+========================================================= */
+
+function cleanCode(value){
+
+  return String(value)
+    .replace(/\D/g,"")
+    .slice(0,6);
+}
+
+
+function validCode(code){
+
+  return /^\d{6}$/.test(code);
+}
+
+
 function startTeacher(){
- code=safeCode($("code").value);if(!code){$("ts").textContent="● Enter exactly 6 digits";return}
- peer=new Peer("cs-class-"+code);
- peer.on("open",()=>{$("ts").textContent="● Classroom ready — waiting for board";openApp()});
- peer.on("connection",c=>{conn=c;conn.on("open",()=>{$("ts").textContent="● Digital board connected";send()})});
- peer.on("error",e=>$("ts").textContent="● "+e.type+" — code may already be in use");
+
+  const input = document.getElementById("teacherCode");
+
+  classroomCode = cleanCode(input.value);
+
+  input.value = classroomCode;
+
+  if(!validCode(classroomCode)){
+
+    alert("Please enter exactly 6 digits.");
+
+    input.focus();
+
+    return;
+  }
+
+  hide("teacherRoom");
+  show("classroom");
+
+  document.getElementById("teacherControls")
+    .classList.remove("hidden");
+
+  document.getElementById("boardLock")
+    .classList.add("hidden");
+
+  setModeBanner(
+    "👩‍🏫 TEACHER CONTROL — Room " + classroomCode
+  );
+
+  createTeacherPeer();
 }
+
+
 function startBoard(){
- code=safeCode($("bcode").value);if(!code){$("bs").textContent="● Enter exactly 6 digits";return}
- $("bs").textContent="● Connecting…";peer=new Peer();
- peer.on("open",()=>{conn=peer.connect("cs-class-"+code);conn.on("open",()=>{$("bs").textContent="● Connected";openApp()});conn.on("data",m=>{if(m.type==="lesson"){lesson=m.lesson;render(lesson)}});conn.on("close",()=>$("live").textContent="● Teacher disconnected")})
- peer.on("error",e=>$("bs").textContent="● "+e.type);
+
+  const input = document.getElementById("boardCode");
+
+  classroomCode = cleanCode(input.value);
+
+  input.value = classroomCode;
+
+  if(!validCode(classroomCode)){
+
+    alert("Please enter exactly 6 digits.");
+
+    input.focus();
+
+    return;
+  }
+
+  hide("boardRoom");
+  show("classroom");
+
+  document.getElementById("teacherControls")
+    .classList.add("hidden");
+
+  document.getElementById("boardLock")
+    .classList.remove("hidden");
+
+  setModeBanner(
+    "🖥️ DIGITAL BOARD — Waiting for Teacher"
+  );
+
+  connectBoard();
 }
-function send(){if(conn&&conn.open)conn.send({type:"lesson",lesson})}
-function go(n){lesson=(n+L.length)%L.length;render(lesson);send()}
-function render(i){let x=L[i];$("title").textContent=x.title;$("overview").textContent=x.overview;$("img1").src=x.image1;$("img2").src=x.image2;
-$("sections").innerHTML=x.sections.map(s=>`<div class="section"><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join("");
-$("facts").innerHTML=x.facts.map((f,j)=>`<div class="fact"><b>Fact ${j+1}</b><p>${f}</p></div>`).join("");
-$("nav").innerHTML=L.map((q,j)=>`<button class="${j===i?"active":""}" onclick="${mode==="teacher"?`go(${j})`:"return false"}">${j+1}. ${q.title.split(" ").slice(0,3).join(" ")}</button>`).join("")}
-function openApp(){$("setup").classList.add("hidden");$("app").classList.remove("hidden");mode=mode||"board";$("controls").innerHTML=mode==="teacher"?`<button class="primary" onclick="go(lesson-1)">← Previous</button><button class="primary" onclick="go(lesson+1)">Next →</button>`:"";$("live").textContent=mode==="teacher"?"● TEACHER CONTROL":"● LIVE — Teacher controlled";render(lesson)}
-function fs(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.()}
-</script></body></html>
+
+
+/* =========================================================
+   PEERJS — TEACHER
+========================================================= */
+
+function createTeacherPeer(){
+
+  setStatus("Connecting to classroom server...");
+
+  const peerId =
+    PEER_PREFIX + classroomCode;
+
+  try{
+
+    peer = new Peer(peerId);
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Connection error");
+
+    alert(
+      "Could not start the classroom connection."
+    );
+
+    return;
+  }
+
+
+  peer.on("open", id => {
+
+    console.log("Teacher peer ready:", id);
+
+    setStatus(
+      "Teacher ready • Waiting for board",
+      false
+    );
+
+  });
+
+
+  peer.on("connection", conn => {
+
+    connection = conn;
+
+    setupTeacherConnection(conn);
+
+  });
+
+
+  peer.on("error", error => {
+
+    console.error("Peer error:",error);
+
+    if(error.type === "unavailable-id"){
+
+      setStatus("Room code already in use");
+
+      alert(
+        "This classroom code is already being used. " +
+        "Please choose another 6-digit code."
+      );
+
+    }else{
+
+      setStatus("Connection error");
+    }
+
+  });
+
+}
+
+
+/* =========================================================
+   TEACHER CONNECTION
+========================================================= */
+
+function setupTeacherConnection(conn){
+
+  conn.on("open", () => {
+
+    setStatus(
+      "Board connected",
+      true
+    );
+
+    setModeBanner(
+      "👩‍🏫 TEACHER CONTROL — Board Connected"
+    );
+
+    sendState();
+
+  });
+
+
+  conn.on("data", data => {
+
+    console.log("Message from board:",data);
+
+  });
+
+
+  conn.on("close", () => {
+
+    setStatus(
+      "Board disconnected",
+      false
+    );
+
+    setModeBanner(
+      "👩‍🏫 TEACHER CONTROL — Board Disconnected"
+    );
+
+  });
+
+
+  conn.on("error", error => {
+
+    console.error(error);
+
+    setStatus("Board connection error");
+
+  });
+
+}
+
+
+/* =========================================================
+   PEERJS — BOARD
+========================================================= */
+
+function connectBoard(){
+
+  setStatus("Connecting to teacher...");
+
+  const teacherPeerId =
+    PEER_PREFIX + classroomCode;
+
+  try{
+
+    peer = new Peer();
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("Connection error");
+
+    return;
+  }
+
+
+  peer.on("open", () => {
+
+    connection =
+      peer.connect(
+        teacherPeerId,
+        {
+          reliable:true
+        }
+      );
+
+    setupBoardConnection(connection);
+
+  });
+
+
+  peer.on("error", error => {
+
+    console.error("Board peer error:",error);
+
+    setStatus(
+      "Could not connect to teacher"
+    );
+
+  });
+
+}
+
+
+function setupBoardConnection(conn){
+
+  conn.on("open", () => {
+
+    setStatus(
+      "Connected to Teacher",
+      true
+    );
+
+    setModeBanner(
+      "🖥️ DIGITAL BOARD — Connected to Teacher"
+    );
+
+  });
+
+
+  conn.on("data", data => {
+
+    console.log("Teacher message:",data);
+
+    handleTeacherMessage(data);
+
+  });
+
+
+  conn.on("close", () => {
+
+    setStatus(
+      "Teacher disconnected",
+      false
+    );
+
+    setModeBanner(
+      "🖥️ DIGITAL BOARD — Teacher Disconnected"
+    );
+
+  });
+
+
+  conn.on("error", error => {
+
+    console.error(error);
+
+    setStatus(
+      "Connection error",
+      false
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   TEACHER → BOARD COMMUNICATION
+========================================================= */
+
+function sendState(){
+
+  if(mode !== "teacher"){
+    return;
+  }
+
+  if(!connection){
+    return;
+  }
+
+  if(!connection.open){
+    return;
+  }
+
+  const message = {
+
+    type:"state",
+
+    lesson:current,
+
+    timestamp:Date.now()
+
+  };
+
+  connection.send(message);
+
+}
+
+
+function handleTeacherMessage(data){
+
+  if(!data || typeof data !== "object"){
+    return;
+  }
+
+  if(data.type === "state"){
+
+    if(
+      Number.isInteger(data.lesson) &&
+      data.lesson >= 0 &&
+      data.lesson < lessons.length
+    ){
+
+      current = data.lesson;
+
+      renderNav();
+      renderLesson();
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   LESSON NAVIGATION
+========================================================= */
+
+function renderNav(){
+
+  const nav =
+    document.getElementById("nav");
+
+  nav.classList.toggle(
+    "board-mode",
+    mode === "board"
+  );
+
+  nav.innerHTML =
+    lessons.map((lesson,index)=>{
+
+      return `
+        <button
+          class="${index === current ? "active" : ""}"
+          ${mode === "board" ? "disabled" : ""}
+          onclick="go(${index})">
+
+          ${lesson.short}
+
+        </button>
+      `;
+
+    }).join("");
+
+}
+
+
+function go(index){
+
+  if(mode === "board"){
+
+    return;
+  }
+
+  current =
+    (index + lessons.length) %
+    lessons.length;
+
+  renderNav();
+
+  renderLesson();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+  sendState();
+
+}
+
+
+function previousLesson(){
+
+  go(current - 1);
+
+}
+
+
+function nextLesson(){
+
+  go(current + 1);
+
+}
+
+
+/* =========================================================
+   LESSON RENDERING
+========================================================= */
+
+function renderLesson(){
+
+  const lesson =
+    lessons[current];
+
+  document.getElementById("title")
+    .textContent = lesson.title;
+
+  document.getElementById("desc")
+    .textContent = lesson.desc;
+
+  document.getElementById("example")
+    .textContent = lesson.example;
+
+  document.getElementById("fact")
+    .textContent = lesson.fact;
+
+  document.getElementById("visualTitle")
+    .textContent = lesson.label;
+
+  document.getElementById("progress")
+    .style.width =
+    ((current + 1) / lessons.length * 100) + "%";
+
+  document.getElementById("question")
+    .textContent = lesson.q;
+
+  renderQuiz();
+
+  renderVisual(lesson);
+
+}
+
+
+function renderQuiz(){
+
+  const lesson =
+    lessons[current];
+
+  const options =
+    document.getElementById("options");
+
+  const feedback =
+    document.getElementById("feedback");
+
+  feedback.textContent =
+    answered.has(current)
+      ? "Question already answered."
+      : "";
+
+  options.innerHTML =
+    lesson.a.map((answer,index)=>{
+
+      return `
+        <button
+          class="option"
+          ${mode === "board" ? "disabled" : ""}
+          onclick="answerQuestion(${index})">
+
+          ${answer}
+
+        </button>
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   VISUALS + 20 IMAGES
+========================================================= */
+
+function imageHTML(number){
+
+  const topicNumber =
+    current + 1;
+
+  const src =
+    `topic${topicNumber}_${number}.svg`;
+
+  return `
+    <img
+      class="topic-image"
+      src="${src}"
+      alt="${lessons[current].title} visual ${number}"
+      loading="eager"
+      onerror="this.outerHTML =
+        '<div class=&quot;image-fallback&quot;>' +
+        'Image ${topicNumber}_${number}.svg not found' +
+        '</div>';">
+  `;
+}
+
+
+function renderTopicImages(){
+
+  return `
+    <div class="image-grid">
+
+      ${imageHTML(1)}
+
+      ${imageHTML(2)}
+
+    </div>
+  `;
+
+}
+
+
+function renderVisual(lesson){
+
+  const visual =
+    document.getElementById("visual");
+
+
+  /*
+    The first priority is the two SVG images
+    for every topic.
+  */
+
+  visual.innerHTML =
+    renderTopicImages();
+
+
+  /*
+    Add a topic-specific interactive visual
+    underneath the images.
+  */
+
+  const interactive =
+    document.createElement("div");
+
+  interactive.style.width = "100%";
+
+
+  if(lesson.visual === "cube"){
+
+    interactive.innerHTML = `
+      <div class="cube">
+        <div class="face f">CPU</div>
+        <div class="face b">RAM</div>
+        <div class="face l">SSD</div>
+        <div class="face r">GPU</div>
+        <div class="face t">INPUT</div>
+        <div class="face bt">OUTPUT</div>
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "history"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        🧮
+        <span>→</span>
+        ⚙️
+        <span>→</span>
+        💻
+        <span>→</span>
+        🖥️
+        <span>→</span>
+        📱
+        <span>→</span>
+        ☁️
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "word"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        📄
+        <span>→</span>
+        ✏️
+        <span>→</span>
+        💾
+        <span>→</span>
+        🖨️
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "ppt"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        📝
+        <span>→</span>
+        🖥️
+        <span>→</span>
+        🎞️
+        <span>→</span>
+        👩‍🏫
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "excel"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        📊
+        <span>→</span>
+        🔢
+        <span>→</span>
+        🧮
+        <span>→</span>
+        📈
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "web"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        📱
+        <span>→</span>
+        🌐
+        <span>→</span>
+        🖥️
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "binary"){
+
+    interactive.innerHTML = `
+
+      <div>
+
+        <div class="bits">
+
+          ${[
+            128,64,32,16,
+            8,4,2,1
+          ].map(value=>`
+
+            <button
+              class="bit"
+              data-v="${value}"
+              ${mode === "board" ? "disabled" : ""}
+              onclick="toggleBit(this)">
+
+              <span class="value">0</span>
+
+              <span class="place">
+                ${value}
+              </span>
+
+            </button>
+
+          `).join("")}
+
+        </div>
+
+        <div class="total">
+          Decimal Value:
+          <span id="total">0</span>
+        </div>
+
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "network"){
+
+    interactive.innerHTML = `
+
+      <div class="network">
+
+        <div class="wire wv"></div>
+        <div class="wire wh"></div>
+
+        <div class="node hub">
+          SWITCH
+        </div>
+
+        <div class="node n1">
+          PC 1
+        </div>
+
+        <div class="node n2">
+          PC 2
+        </div>
+
+        <div class="node n3">
+          PC 3
+        </div>
+
+        <div class="node n4">
+          PC 4
+        </div>
+
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "compiler"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        👨‍💻
+        <span>→</span>
+        📝
+        <span>→</span>
+        ⚙️
+        <span>→</span>
+        💻
+      </div>
+    `;
+
+  }
+
+
+  else if(lesson.visual === "ai"){
+
+    interactive.innerHTML = `
+      <div class="flow">
+        📚
+        <span>→</span>
+        🧠
+        <span>→</span>
+        🎯
+      </div>
+    `;
+
+  }
+
+
+  visual.appendChild(interactive);
+
+}
+
+
+/* =========================================================
+   BINARY INTERACTION
+========================================================= */
+
+function toggleBit(element){
+
+  if(mode === "board"){
+    return;
+  }
+
+  element.classList.toggle("on");
+
+  const value =
+    element.classList.contains("on")
+      ? "1"
+      : "0";
+
+  element.querySelector(".value")
+    .textContent = value;
+
+  let total = 0;
+
+  document
+    .querySelectorAll(".bit.on")
+    .forEach(bit => {
+
+      total +=
+        Number(bit.dataset.v);
+
+    });
+
+  const totalElement =
+    document.getElementById("total");
+
+  if(totalElement){
+
+    totalElement.textContent =
+      total;
+
+  }
+
+}
+
+
+/* =========================================================
+   QUIZ
+========================================================= */
+
+function answerQuestion(index){
+
+  if(mode === "board"){
+    return;
+  }
+
+  if(answered.has(current)){
+    return;
+  }
+
+  const lesson =
+    lessons[current];
+
+  const buttons =
+    document.querySelectorAll(".option");
+
+  const feedback =
+    document.getElementById("feedback");
+
+  if(index === lesson.correct){
+
+    buttons[index]
+      .classList.add("correct");
+
+    buttons.forEach(
+      button => button.disabled = true
+    );
+
+    feedback.textContent =
+      "✅ Correct! Excellent.";
+
+    answered.add(current);
+
+  }else{
+
+    buttons[index]
+      .classList.add("wrong");
+
+    feedback.textContent =
+      "❌ Not quite. Look at the correct answer.";
+
+    buttons[lesson.correct]
+      .classList.add("correct");
+
+  }
+
+}
+
+
+/* =========================================================
+   TEACHING FACT
+========================================================= */
+
+function randomFact(){
+
+  if(mode === "board"){
+    return;
+  }
+
+  const facts = [
+
+    "Ask students to explain the concept in their own words.",
+
+    "Connect this topic to something students use every day.",
+
+    "Pause and ask a student to give a real-world example.",
+
+    "Use the visual as a discussion prompt.",
+
+    "Ask students what would happen if one component failed."
+
+  ];
+
+  document.getElementById("fact")
+    .textContent =
+    facts[
+      Math.floor(
+        Math.random() * facts.length
+      )
+    ];
+
+}
+
+
+/* =========================================================
+   FULL SCREEN
+========================================================= */
+
+function toggleFullscreen(){
+
+  const element =
+    document.documentElement;
+
+  if(
+    !document.fullscreenElement &&
+    element.requestFullscreen
+  ){
+
+    element.requestFullscreen();
+
+  }else if(
+    document.exitFullscreen
+  ){
+
+    document.exitFullscreen();
+
+  }
+
+}
+
+
+/* =========================================================
+   TEXT TO SPEECH
+========================================================= */
+
+function speak(){
+
+  if(
+    !("speechSynthesis" in window)
+  ){
+
+    alert(
+      "Text-to-speech is not supported in this browser."
+    );
+
+    return;
+  }
+
+  const lesson =
+    lessons[current];
+
+  speechSynthesis.cancel();
+
+  const text =
+    `${lesson.title}. ` +
+    `${lesson.desc}. ` +
+    `Classroom example. ` +
+    `${lesson.example}. ` +
+    `Teaching point. ` +
+    `${lesson.fact}`;
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.rate = 0.9;
+
+  speechSynthesis.speak(speech);
+
+}
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+renderNav();
+renderLesson();
+
+setStatus("Not connected");
+
+</script>
+
+</body>
+</html>
