@@ -1,25 +1,12 @@
-CS PERMANENT BOARD + TEACHER CODE
+CS Digital Classroom — FINAL 3D BUILD
 
-No QR, no camera, no Python, no Termux.
+Upload/replace these three files in the repository root:
+- index.html
+- teacher.html
+- board.html
 
-ONE-TIME:
-1. Host this folder as an HTTPS website.
-2. Open the website on the digital board.
-3. Bookmark it as "CS Digital Board".
-4. Teacher opens the same website on the phone.
+Keep the existing images/ folder and SVG files.
 
-EACH CLASS:
-Teacher:
-- Choose Teacher Phone.
-- Enter any 6-digit classroom code.
-- Start Classroom.
-
-Board:
-- Choose Digital Board.
-- Enter the same 6-digit code.
-- Connect to Teacher.
-
-Then the teacher controls Previous/Next and the board updates automatically.
-
-IMPORTANT:
-This uses PeerJS/WebRTC signaling. Internet is required. For production use, host the page over HTTPS. The free public PeerJS cloud is suitable for classroom testing; a dedicated signaling server can be used later if desired.
+index.html is now the actual GitHub Pages homepage and launches either Teacher Phone or Digital Board.
+teacher.html contains the 10-topic detailed teaching content, interactive 3D Learning Lab, Read Aloud + Stop and teacher-to-board control.
+board.html contains the Digital Board view and follows the teacher topic through the 6-digit room code.
