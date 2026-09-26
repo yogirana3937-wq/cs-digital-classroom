@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560">
+<rect width="1000" height="560" rx="28" fill="#07111f"/>
+<rect x="30" y="30" width="940" height="500" rx="24" fill="#101d30" stroke="#38506d" stroke-width="4"/>
+<text x="70" y="100" fill="#f472b6" font-family="Arial,sans-serif" font-size="42" font-weight="700">PPT</text>
+<text x="70" y="145" fill="#b7c5d8" font-family="Arial,sans-serif" font-size="24">Presentation</text>
+<circle cx="300" cy="320" r="125" fill="#16263d" stroke="#f472b6" stroke-width="6"/>
+<text x="300" y="345" text-anchor="middle" fill="#f8fafc" font-family="Arial,sans-serif" font-size="95">🖥</text>
+<path d="M445 320 H555" stroke="#f472b6" stroke-width="12" stroke-linecap="round"/>
+<path d="M545 300 L575 320 L545 340" fill="none" stroke="#f472b6" stroke-width="12" stroke-linecap="round"/>
+<circle cx="700" cy="320" r="125" fill="#16263d" stroke="#f472b6" stroke-width="6"/>
+<text x="700" y="345" text-anchor="middle" fill="#f8fafc" font-family="Arial,sans-serif" font-size="95">🎤</text>
+</svg>
