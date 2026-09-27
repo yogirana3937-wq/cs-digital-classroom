@@ -1,13 +1,12 @@
-# CS Digital Classroom — Self-contained classroom pages
+# CS Digital Classroom — 30 interactive 3D views
 
-Upload the three HTML files in this ZIP (`index.html`, `teacher.html`, `board.html`) to the root of your GitHub Pages repository. Replace the older versions with these files. The 10 lesson activities and all 20 diagrams are embedded inside Teacher and Board, so no separate JavaScript or images folder is needed.
+Upload the three HTML files (`index.html`, `teacher.html`, `board.html`) together to the root of your GitHub Pages repository, replacing their older versions. Every diagram and activity is embedded in the HTML; no separate images or JavaScript files are needed.
 
-## Teacher and board
+## In class
 
-1. Open the published `index.html`; choose Teacher on the phone and Board on the display.
-2. On Teacher, enter a six-digit code and tap **Start Classroom**. Wait for **ready**.
-3. On Board, enter the same six-digit code and tap **Connect**. Alternatively, use **Open Board** on Teacher to open the board page with the code filled in.
-4. Choose a lesson on Teacher. The Board follows. Predictions and simulation controls also sync to the Board.
-5. In each topic, ask students to predict first; select an answer, change the control under **Try it**, then discuss **Explain** and the **Apply it** challenge. Use the quiz afterward.
+1. Open Teacher on the phone, enter a six-digit classroom code and tap Start Classroom. Wait for ready.
+2. Open Board on the display, enter the same code and tap Connect. Open Board on the teacher page also opens the board page with the code filled in.
+3. Select a topic on Teacher. In the 3D Learning Lab, choose Overview or one of the two focused models for that topic. Tap a component to read its role; drag the lab to tilt the model; use Reset view or Auto rotate as needed. The teacher's model choice is shown on the connected board.
+4. Use Predict → Try → Explain and the quiz to check understanding. Teacher changes to the activity control also appear on the board.
 
-The content, 3D lab and simulations can load without Internet. Pairing needs Internet access to PeerJS signaling and a browser/network that allows peer connections. If a code is already in use, choose another one. The six-digit code is convenient for classroom pairing, not private authentication. Speech synthesis depends on browser support. The experiments are simplified teaching models, not measurements of real devices.
+The site includes 10 topics, 30 switchable 3D views, 20 embedded diagrams and 10 interactive experiments. Content can load without Internet. Teacher/Board pairing requires Internet for PeerJS signaling and a network/browser that allows peer connections. Six-digit codes are for classroom convenience, not private authentication. Browser speech support varies. The models are simplified educational representations, not measurements of real equipment.
