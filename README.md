@@ -36,3 +36,15 @@ The page is still using older deployed files. Replace the complete GitHub Pages 
 ## Teaching-note reliability fix
 
 The redundant concept atlas was removed because opening one card left large empty adjacent cards. The real image and history gallery remains, with a jump back to the notes directly under the 3D Lab. Network note-linked 3D scenes now use only links that exist in the selected scene. All 99 note links were checked on Teacher and Board.
+
+## Illustrated concept charts
+Each dropdown now has its own three-stage animated concept diagram derived from its explanation. Historical entries also retain distinct reference photographs. Chart zoom scales diagrams and text; motion follows the device reduced-motion setting.
+
+## Single animated topic chart
+The Images + Text Charts area displays one chart for the selected classroom topic. It advances through that topic's concepts every 6.5 seconds and offers a concept selector, previous/next, pause/play, zoom, and historical photos where relevant.
+
+## Illustrated topic cards
+The single chart uses ten illustrations cropped from the classroom infographic selected by the user, one per topic. Its highlighted concept explanation advances alongside a subtle sweep over the corresponding topic image. The illustrations are included locally for offline use.
+
+## Visual placement
+Topic Visuals displays the illustrated overview for the active topic. Its original simple diagrams remain under “View additional topic diagrams.” Detailed Teaching Notes uses the animated, concept-specific diagram and explanation, so the overview image does not repeat at every step.
