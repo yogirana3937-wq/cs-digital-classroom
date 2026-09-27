@@ -48,3 +48,6 @@ The single chart uses ten illustrations cropped from the classroom infographic s
 
 ## Visual placement
 Topic Visuals displays the illustrated overview for the active topic. Its original simple diagrams remain under “View additional topic diagrams.” Detailed Teaching Notes uses the animated, concept-specific diagram and explanation, so the overview image does not repeat at every step.
+
+## GitHub Pages image reliability
+The ten Topic Visuals cards are bundled inside charts.js as well as shipped in assets. They remain visible if the assets directory is omitted during an HTML-only upload. The service worker now tolerates an absent optional asset during installation.
