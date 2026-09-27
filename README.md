@@ -1,15 +1,13 @@
-# CS Digital Classroom — Interactive Teaching Edition
+# CS Digital Classroom — Self-contained classroom pages
 
-Upload `index.html`, `teacher.html`, `board.html`, `activities.js`, and the `images` folder together to the root of a GitHub Pages repository. Replace older copies of those files. Open the published index page.
+Upload the three HTML files in this ZIP (`index.html`, `teacher.html`, `board.html`) to the root of your GitHub Pages repository. Replace the older versions with these files. The 10 lesson activities and all 20 diagrams are embedded inside Teacher and Board, so no separate JavaScript or images folder is needed.
 
-## Run a class
+## Teacher and board
 
-1. On the teacher phone, open Teacher Control, enter any six-digit code and tap **Start Classroom**. Wait until it says ready.
-2. On the display, open Digital Board, enter the same code and tap **Connect**. You can also use **Open Board** on the teacher page to open a board page with the code prefilled.
-3. Select a topic on the teacher phone. The board follows. Use Full Screen on the board if helpful.
-4. Read the prediction question aloud before revealing the result. Ask learners to vote or explain their reasoning. Select a prediction, change the **Try it** control, discuss the explanation, and use the **Apply it** challenge. The teacher's activity choice and control state appear on the board.
-5. Use the topic quiz to check understanding. Each answer reveals the correct option and a short reason.
+1. Open the published `index.html`; choose Teacher on the phone and Board on the display.
+2. On Teacher, enter a six-digit code and tap **Start Classroom**. Wait for **ready**.
+3. On Board, enter the same six-digit code and tap **Connect**. Alternatively, use **Open Board** on Teacher to open the board page with the code filled in.
+4. Choose a lesson on Teacher. The Board follows. Predictions and simulation controls also sync to the Board.
+5. In each topic, ask students to predict first; select an answer, change the control under **Try it**, then discuss **Explain** and the **Apply it** challenge. Use the quiz afterward.
 
-The 10 lessons contain 20 topic diagrams, 3D scenes, three facts per topic, interactive experiments, teaching notes, examples and quizzes. Topic content and experiments work offline once the files have loaded. Teacher-to-board pairing requires Internet for PeerJS signaling and a browser/network that permits peer connections. If the code is already in use, choose another one. A six-digit code is for classroom convenience, not private authentication. Speech controls depend on browser speech support and may need a tap to start audio.
-
-The interactive experiments use simplified models to illustrate concepts. They are teaching demonstrations, not measurements of real hardware or networks.
+The content, 3D lab and simulations can load without Internet. Pairing needs Internet access to PeerJS signaling and a browser/network that allows peer connections. If a code is already in use, choose another one. The six-digit code is convenient for classroom pairing, not private authentication. Speech synthesis depends on browser support. The experiments are simplified teaching models, not measurements of real devices.
