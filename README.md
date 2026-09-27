@@ -1,16 +1,16 @@
-# CS Digital Classroom — Next Level Final Build
+# CS Digital Classroom — Final
 
-Open `index.html` in Chrome or publish the folder to GitHub Pages.
+## Teacher / Digital Board connection
+1. Open `teacher.html` on the teacher phone.
+2. Enter any unused 6-digit classroom code and tap **Start Classroom**.
+3. Wait for **🟢 Room ready**.
+4. Open `board.html` on the digital board.
+5. Enter the same 6-digit code and tap **Join Classroom**.
+6. The board will retry automatically for up to 45 seconds if the teacher page is still connecting.
+7. When connected, changing topics on the Teacher page changes the Digital Board.
 
-## Teacher
-1. Open Teacher Control.
-2. Enter any 6-digit classroom code and tap Start Classroom.
-3. Keep the teacher page open.
-
-## Digital Board
-1. Open Digital Board on the board browser.
-2. Enter the same 6-digit code.
-3. Tap Connect.
-4. Teacher topic changes are synchronized to the board.
-
-The board/teacher connection uses PeerJS over the Internet, so both devices need Internet access. Read Aloud uses the browser speech engine.
+### Important
+- Both devices need Internet access because the teacher-board connection uses PeerJS signaling.
+- Keep the Teacher page open while teaching.
+- If the code says it is already in use, close the old Teacher tab and choose another 6-digit code.
+- For GitHub Pages, upload the whole project folder, including the `images` folder.
