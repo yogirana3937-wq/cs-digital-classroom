@@ -1,3 +1,7 @@
-CS Digital Classroom
+# CS Digital Classroom
 
-Teacher/Board connection: 1) Teacher opens teacher.html and taps Start Classroom. 2) Copy the Board ID shown on the Teacher screen. 3) Board opens board.html, pastes the Teacher Board ID, and taps Connect. Both devices need Internet access. A 6-digit code alone cannot securely map two devices on a static GitHub Pages site without a server; the Board ID is therefore used for the peer connection.
+Upload `index.html`, `teacher.html`, `board.html`, and the `images` folder together to GitHub Pages. Open the published `index.html` page.
+
+On the teacher device, open Teacher, choose a topic, enter any six digit classroom code and tap **Start Classroom**. Copy the Board ID displayed there. On the display device, open Board, paste that Board ID and tap **Connect**. Both devices need Internet access for PeerJS signaling and their peer connection. The six digit code is a local classroom label; pairing uses the Board ID because a static site cannot look up rooms by code without a backend.
+
+Lessons, quizzes and the interactive 3D lab work without a connection. The board shows lesson updates when the peer connection is active. A network or browser that blocks peer connections can prevent pairing.
