@@ -1,13 +1,12 @@
-# CS Digital Classroom — 50 interactive 3D views
+# CS Digital Classroom — Board startup and connection fix
 
-Upload `index.html`, `teacher.html`, and `board.html` together to the root of your GitHub Pages repository, replacing the older files. Activities and diagrams are embedded; no images or JavaScript folder is needed.
+Upload `index.html`, `teacher.html`, and `board.html` together to the root of your GitHub Pages repository, replacing the old files. All lesson models, activities, and diagrams are embedded in these pages.
 
-## How to teach with it
+## Connect Teacher and Board
 
-1. On Teacher, enter a six-digit classroom code and tap Start Classroom. On Board, enter the same code and tap Connect.
-2. Choose a topic. Its 3D lab has an overview, two focused models and two Concepts views. Tap a component to show and hear its explanation. Use the Component voice button to turn speech on or off on each device.
-3. Under Detailed Teaching Notes, tap **Explore in 3D** beside any note. The matching concept opens in the lab, and its explanation is shown and read aloud. This includes GPU, spreadsheet formulas, web concepts, network topology and algorithms.
-4. When connected, the teacher's chosen topic, model, component and activity controls also appear on Board. If both devices speak at once, mute Component voice on one device.
-5. Use Predict → Try → Explain and the short quiz for understanding checks.
+1. Open Teacher on the phone. Enter a six-digit code and tap **Start Classroom**. Wait until Teacher shows **Classroom ready**. Keep the Teacher page open.
+2. Open Board on the display. Enter the same code and tap **Connect**. Board now shows lesson content even before connecting. If Teacher has not started yet, Board shows **Waiting for teacher** and retries automatically.
+3. When Board shows **Connected to Teacher**, change a lesson or model on Teacher. The Board should follow. Tapping a component shows and reads its explanation.
+4. If Teacher says **Code already in use**, choose another six-digit code on both devices. If Board keeps waiting, check that Teacher shows ready, both devices have Internet, and both opened the newly uploaded pages. Browser or network restrictions may prevent peer connections.
 
-The project has 10 topics, 50 switchable 3D views, 99 note-linked concepts, 20 embedded diagrams and 10 interactive experiments. Content can load without Internet. Teacher/Board pairing requires Internet for PeerJS signaling and a network/browser permitting peer connections. Six-digit codes are classroom conveniences, not private authentication. Browser speech support varies; written explanations always remain visible. The models simplify real systems for teaching.
+The 10 topics include 50 switchable 3D views, 99 note-linked concepts, 20 embedded diagrams and 10 activities. Content can load without Internet; cross-device pairing requires Internet for PeerJS signaling and a network that permits peer connections. Room codes are for convenience, not private authentication. Browser speech support varies.
