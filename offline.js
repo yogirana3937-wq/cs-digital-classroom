@@ -1,0 +1,3 @@
+(function(){if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+const badge=document.createElement('div');badge.id='offlineBadge';badge.style.cssText='position:fixed;bottom:8px;right:8px;z-index:500;border-radius:10px;padding:8px 12px;background:#402c19;color:#fff;font:700 14px system-ui;display:none';badge.textContent='Offline lessons available · classroom pairing needs Internet';document.body.appendChild(badge);
+function update(){badge.style.display=navigator.onLine?'none':'block'}window.addEventListener('online',update);window.addEventListener('offline',update);update()})();
