@@ -1,4 +1,4 @@
-const CACHE='cs-classroom-v8';
+const CACHE='cs-classroom-v12';
 const CORE=['./','./index.html','./teacher.html','./board.html','./studio.js','./studio.css','./references.js','./references.css','./offline.js','./assets/computer.jpg','./assets/history.jpg','./assets/writer.png','./assets/presentation.png','./assets/spreadsheet.png','./assets/web.jpg','./assets/logic.svg','./assets/network.jpg','./assets/programming.png','./assets/ml.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
