@@ -258,4 +258,7 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
  window.addEventListener('load',()=>{stableBuild();[150,400,900,1800,3200].forEach(ms=>setTimeout(stableBuild,ms))});
  const main=document.querySelector('main');
  if(main)new MutationObserver(muts=>{if(!running&&muts.some(m=>m.type==='childList'))schedule()}).observe(main,{childList:true,subtree:false});
+ // Late-loaded modules can move their own panels without changing main's child list.
+ // Re-assert the approved order briefly after startup, then stop.
+ let guardTicks=0;const guard=setInterval(()=>{stableBuild();if(++guardTicks>=20)clearInterval(guard)},500);
 })();</script><script src="offline.js"></script></body></html>
