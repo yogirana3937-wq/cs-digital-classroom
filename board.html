@@ -250,7 +250,7 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
    if(!textbook){textbook=document.createElement('details');textbook.id='textbookLesson';textbook.innerHTML='<div id="textbookBody" class="mock-body"></div>';textbook.addEventListener('toggle',()=>{if(textbook.open&&typeof textbookSync==='function')textbookSync()})}
    const activities=shell('activitiesDrawer',['recap','mistake','guidedScenario','conceptCheck','activity'].map(id=>document.getElementById(id)));
    const facts=shell('factsDrawer',[document.querySelector('.fact'),document.getElementById('exampleBox'),document.getElementById('referenceGallery')]);
-   const charts=shell('chartsDrawer',[document.querySelector('.concept-chart')]);
+   const charts=shell('chartsDrawer',[document.getElementById('conceptCharts')||document.querySelector('.concept-chart')]);
    const studio=document.getElementById('studioDrawer');const studioNode=document.getElementById('teachingStudio');const studioBody=studio&&studio.querySelector(':scope>.mock-body');if(studioBody&&studioNode&&studioNode.parentElement!==studioBody)studioBody.appendChild(studioNode);
    const quiz=shell('quizDrawer',[document.querySelector('.quizbox')]);
    const order=[visuals,notes,textbook,activities,facts,charts,studio,quiz];
