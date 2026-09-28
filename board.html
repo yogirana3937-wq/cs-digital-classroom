@@ -195,7 +195,12 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
  function arrange(){
   const main=document.querySelector('main'),lab=document.querySelector('.lab');if(!main||!lab)return;
   const visuals=document.querySelector('.visuals'),notes=document.getElementById('sections')?.closest('.card');
-  const textbook=document.getElementById('textbookLesson');
+  let textbook=document.getElementById('textbookLesson');
+  if(!textbook){
+    textbook=document.createElement('details');textbook.id='textbookLesson';textbook.className='textbook-lesson card';
+    textbook.innerHTML='<summary>📖 Textbook Lesson · English + सरल हिंदी</summary><div id="textbookBody"></div>';
+    textbook.addEventListener('toggle',()=>{if(textbook.open&&typeof textbookSync==='function')textbookSync()});
+  }
   const activities=make('activitiesDrawer',['recap','mistake','guidedScenario','conceptCheck','activity'].map(id=>document.getElementById(id)));
   const facts=make('factsDrawer',[document.querySelector('.fact'),document.getElementById('exampleBox'),document.getElementById('referenceGallery')]);
   const chart=document.querySelector('.concept-chart');
@@ -205,8 +210,8 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
   const vd=make('visualsDrawer',[visuals]),nd=make('notesDrawer',[notes]);
   const ordered=[vd,nd,textbook,activities,facts,charts,studio].filter(Boolean);
   let anchor=lab;ordered.forEach(d=>{anchor.insertAdjacentElement('afterend',d);anchor=d});
-  specs.forEach(s=>decorate(document.getElementById(s[0]),s));
-  const quiz=document.querySelector('.quizbox');if(quiz){let q=document.getElementById('quizDrawer');if(!q){q=make('quizDrawer',[quiz]);decorate(q,['quizDrawer','9','🧩','Quiz & Lesson Check','Check understanding before moving to the next topic.','#a78bfa'])}anchor.insertAdjacentElement('afterend',q)}
+  specs.forEach(s=>{const d=document.getElementById(s[0]);decorate(d,s);if(d&&!d.dataset.mockReady){d.open=false;d.dataset.mockReady='1'}});
+  const quiz=document.querySelector('.quizbox');if(quiz){let q=document.getElementById('quizDrawer');if(!q){q=make('quizDrawer',[quiz]);decorate(q,['quizDrawer','9','🧩','Quiz & Lesson Check','Check understanding before moving to the next topic.','#a78bfa']);q.open=false;q.dataset.mockReady='1'}anchor.insertAdjacentElement('afterend',q)}
  }
  window.addEventListener('load',()=>{arrange();setTimeout(arrange,250);setTimeout(arrange,1000)});
  const main=document.querySelector('main');if(main)new MutationObserver(()=>{clearTimeout(window.__mockLayout);window.__mockLayout=setTimeout(arrange,60)}).observe(main,{childList:true,subtree:false});
