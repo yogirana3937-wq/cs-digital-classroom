@@ -143,7 +143,12 @@ main>details#studioDrawer:not(.mock-section),main>details#textbookLesson:not(.mo
 main>details.mock-section{visibility:visible!important}
 /* Globus digital-board compatibility: large landscape touch display. */
 @media (min-width:1000px) and (pointer:coarse){
-  html{font-size:18px}
+  html{font-size:18px;-webkit-text-size-adjust:100%}
+  *{-webkit-tap-highlight-color:transparent}
+  body{min-height:100dvh}
+  summary,button,.btn,[role="button"]{cursor:pointer;-webkit-user-select:none;user-select:none}
+  summary{touch-action:manipulation}
+  html{scroll-behavior:auto}
   body{overscroll-behavior:none}
   button,.btn,summary,[role="button"]{min-height:52px;touch-action:manipulation}
   .wrap{max-width:1600px!important;padding:18px 24px!important}
@@ -283,10 +288,11 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
  const schedule=()=>{clearTimeout(timer);timer=setTimeout(stableBuild,30)};
  window.addEventListener('load',()=>{stableBuild();[150,400,900,1800,3200].forEach(ms=>setTimeout(stableBuild,ms))});
  const main=document.querySelector('main');
- if(main)new MutationObserver(muts=>{if(!running&&muts.some(m=>m.type==='childList'))schedule()}).observe(main,{childList:true,subtree:false});
- // Late-loaded modules can move their own panels without changing main's child list.
- // Re-assert the approved order briefly after startup, then stop.
- let guardTicks=0;const guard=setInterval(()=>{stableBuild();if(++guardTicks>=6)clearInterval(guard)},700);
+ let observer=null;
+ if(main){observer=new MutationObserver(muts=>{if(!running&&muts.some(m=>m.type==='childList'))schedule()});observer.observe(main,{childList:true,subtree:false})}
+ // Late-loaded modules can move their own panels briefly during startup.
+ // Then disconnect the layout observer so normal lesson rendering cannot trigger shell work.
+ let guardTicks=0;const guard=setInterval(()=>{stableBuild();if(++guardTicks>=6){clearInterval(guard);observer?.disconnect();clearTimeout(timer)}},700);
  // Globus-board hardening: after initial module placement, stop DOM re-layout work.
  // Touch controls and the 3D scene then run without repeated shell reconstruction.
 })();</script><script src="offline.js"></script></body></html>
