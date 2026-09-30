@@ -286,5 +286,7 @@ const roomParam=new URLSearchParams(location.search).get("room");if(/^\d{6}$/.te
  if(main)new MutationObserver(muts=>{if(!running&&muts.some(m=>m.type==='childList'))schedule()}).observe(main,{childList:true,subtree:false});
  // Late-loaded modules can move their own panels without changing main's child list.
  // Re-assert the approved order briefly after startup, then stop.
- let guardTicks=0;const guard=setInterval(()=>{stableBuild();if(++guardTicks>=20)clearInterval(guard)},500);
+ let guardTicks=0;const guard=setInterval(()=>{stableBuild();if(++guardTicks>=6)clearInterval(guard)},700);
+ // Globus-board hardening: after initial module placement, stop DOM re-layout work.
+ // Touch controls and the 3D scene then run without repeated shell reconstruction.
 })();</script><script src="offline.js"></script></body></html>
