@@ -1,4 +1,4 @@
-const CACHE='cs-classroom-v29';
+const CACHE='cs-classroom-v30';
 const CORE=['./','./index.html','./teacher.html','./board.html','./studio.js','./studio.css','./references.js','./references.css','./charts.js','./charts.css','./offline.js','./textbook.js','./textbook.css','./computer.jpg','./history.jpg','./writer.png','./presentation.png','./spreadsheet.png','./web.jpg','./logic.svg','./network.jpg','./programming.png','./ml.svg','./abacus.jpg','./pascaline.jpg','./difference-engine.jpg','./lovelace.jpg','./transistor.jpg','./microprocessor.jpg','./topic-chart-01.webp','./topic-chart-02.webp','./topic-chart-03.webp','./topic-chart-04.webp','./topic-chart-05.webp','./topic-chart-06.webp','./topic-chart-07.webp','./topic-chart-08.webp','./topic-chart-09.webp','./topic-chart-10.webp'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>Promise.all(CORE.map(path=>cache.add(path).catch(()=>null)))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
