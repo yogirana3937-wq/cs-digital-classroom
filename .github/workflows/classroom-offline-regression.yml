@@ -18,4 +18,6 @@ jobs:
         with:
           node-version: '22'
       - name: Run service worker regression
-        run: node tests/sw-regression.test.cjs
+        run: |
+          node tests/sw-regression.test.cjs
+          node tests/board-admission.test.cjs
