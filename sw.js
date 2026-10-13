@@ -1,4 +1,4 @@
-const CACHE='cs-classroom-v31';
+const CACHE='cs-classroom-v32';
 const CACHE_PREFIX='cs-classroom-';
 const CORE=['./','./index.html','./teacher.html','./board.html','./studio.js','./studio.css','./references.js','./references.css','./charts.js','./charts.css','./offline.js','./textbook.js','./textbook.css','./computer.jpg','./history.jpg','./writer.png','./presentation.png','./spreadsheet.png','./web.jpg','./logic.svg','./network.jpg','./programming.png','./ml.svg','./abacus.jpg','./pascaline.jpg','./difference-engine.jpg','./lovelace.jpg','./transistor.jpg','./microprocessor.jpg','./topic-chart-01.webp','./topic-chart-02.webp','./topic-chart-03.webp','./topic-chart-04.webp','./topic-chart-05.webp','./topic-chart-06.webp','./topic-chart-07.webp','./topic-chart-08.webp','./topic-chart-09.webp','./topic-chart-10.webp'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>Promise.all(CORE.map(path=>cache.add(path)))).then(()=>self.skipWaiting()))});
@@ -7,3 +7,5 @@ self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='G
  const url=new URL(req.url);if(url.origin===self.location.origin){event.respondWith(fetch(req).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(cache=>cache.put(req,copy))}return res}).catch(async()=>{const cached=await caches.match(req);return cached||Response.error()}));return}
  if(url.hostname==='commons.wikimedia.org'||url.hostname==='unpkg.com'){event.respondWith(caches.match(req).then(cached=>cached||fetch(req,{mode:'no-cors'}).then(response=>{caches.open(CACHE).then(cache=>cache.put(req,response.clone()));return response})));}
 });
+
+self.addEventListener('message',event=>{if(!event.data||event.data.type!=='offline-readiness'||!event.ports||!event.ports[0])return;const port=event.ports[0];event.waitUntil((async()=>{try{const cache=await caches.open(CACHE);const matches=await Promise.all(CORE.map(path=>cache.match(new URL(path,self.registration.scope).href)));port.postMessage({type:'offline-readiness',ready:matches.every(response=>response&&response.ok)});}catch(_){port.postMessage({type:'offline-readiness',ready:false});}})());});
