@@ -1,0 +1,14 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const teacher = fs.readFileSync(path.join(__dirname, '..', 'teacher.html'), 'utf8');
+const guarded = "peer.on('connection',c=>{if(conn&&conn.open){c.on('open',()=>c.close());try{c.close()}catch(e){}return}conn=c;";
+assert.equal(teacher.split("peer.on('connection',c=>").length - 1, 1, 'one connection handler expected');
+assert.ok(teacher.includes(guarded), 'active Board must be protected before assigning incoming connection');
+assert.ok(!teacher.includes("if(conn&&conn.open)conn.close();conn=c"), 'old takeover behavior must not return');
+const handler = teacher.slice(teacher.indexOf("peer.on('connection',c=>"));
+const guardAt = handler.indexOf('if(conn&&conn.open)');
+const assignmentAt = handler.indexOf('conn=c;');
+assert.ok(guardAt >= 0 && assignmentAt > guardAt, 'reject incoming connection before assignment');
+console.log('PASS: active Board admission guard source regression');
