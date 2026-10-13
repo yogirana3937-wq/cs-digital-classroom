@@ -1,8 +1,9 @@
-const CACHE='cs-classroom-v30';
+const CACHE='cs-classroom-v31';
+const CACHE_PREFIX='cs-classroom-';
 const CORE=['./','./index.html','./teacher.html','./board.html','./studio.js','./studio.css','./references.js','./references.css','./charts.js','./charts.css','./offline.js','./textbook.js','./textbook.css','./computer.jpg','./history.jpg','./writer.png','./presentation.png','./spreadsheet.png','./web.jpg','./logic.svg','./network.jpg','./programming.png','./ml.svg','./abacus.jpg','./pascaline.jpg','./difference-engine.jpg','./lovelace.jpg','./transistor.jpg','./microprocessor.jpg','./topic-chart-01.webp','./topic-chart-02.webp','./topic-chart-03.webp','./topic-chart-04.webp','./topic-chart-05.webp','./topic-chart-06.webp','./topic-chart-07.webp','./topic-chart-08.webp','./topic-chart-09.webp','./topic-chart-10.webp'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>Promise.all(CORE.map(path=>cache.add(path).catch(()=>null)))).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>Promise.all(CORE.map(path=>cache.add(path)))).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;
- const url=new URL(req.url);if(url.origin===self.location.origin){event.respondWith(fetch(req).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(cache=>cache.put(req,copy))}return res}).catch(()=>caches.match(req)));return}
+ const url=new URL(req.url);if(url.origin===self.location.origin){event.respondWith(fetch(req).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(cache=>cache.put(req,copy))}return res}).catch(async()=>{const cached=await caches.match(req);return cached||Response.error()}));return}
  if(url.hostname==='commons.wikimedia.org'||url.hostname==='unpkg.com'){event.respondWith(caches.match(req).then(cached=>cached||fetch(req,{mode:'no-cors'}).then(response=>{caches.open(CACHE).then(cache=>cache.put(req,response.clone()));return response})));}
 });
