@@ -6,7 +6,7 @@ const VERSION='cs-pair-v1';
 function api(){if(root.isSecureContext===false||!root.crypto||!root.crypto.subtle||!root.crypto.getRandomValues)throw new Error('Secure Web Crypto required');return root.crypto}
 function bytes(x){return encoder.encode(x)}
 function hex(b){return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('')}
-function validRoom(room){if(typeof room!=='string'||!/^\\d{6}$/.test(room))throw new Error('Invalid room')}
+function validRoom(room){if(typeof room!=='string'||!/^\d{6}$/.test(room))throw new Error('Invalid room')}
 function validRole(role){if(role!=='teacher'&&role!=='board')throw new Error('Invalid role')}
 function validNonce(n){if(typeof n!=='string'||! /^[a-f0-9]{64}$/.test(n))throw new Error('Invalid nonce')}
 function validPublicKey(k){if(!k||typeof k!=='object'||k.kty!=='EC'||k.crv!=='P-256'||typeof k.x!=='string'||typeof k.y!=='string'||k.x.length!==43||k.y.length!==43)throw new Error('Invalid key')}
