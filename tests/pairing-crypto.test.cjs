@@ -24,5 +24,17 @@ async function rejects(fn, message){await assert.rejects(fn,message)}
   await rejects(()=>pairing.session('12345',teacher,board),/Invalid room/);
   await rejects(()=>pairing.session('123456',teacher,teacher),/Invalid participants/);
   await rejects(()=>pairing.session('123456',teacher,{...board,nonce:teacher.nonce}),/Nonce reuse/);
+  const tamperedNonce = await pairing.session('123456',teacher,{...board,nonce:'a'.repeat(64)});
+  assert.equal(await pairing.verify(tamperedNonce,'board',bp),false,'modified handshake nonce rejects old proof');
+  const anotherBoard=await pairing.identity('board');
+  const swappedKey=await pairing.session('123456',teacher,{...board,publicKey:anotherBoard.publicKey});
+  assert.equal(await pairing.verify(swappedKey,'board',bp),false,'modified public key rejects old proof');
+  const vm=require('node:vm');
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const source=fs.readFileSync(path.join(__dirname,'..','secure-pairing.js'),'utf8');
+  const insecure={isSecureContext:false,crypto:require('node:crypto').webcrypto,TextEncoder,Uint8Array,DataView,module:{exports:{}}};
+  vm.runInNewContext(source,insecure);
+  await rejects(()=>insecure.module.exports.identity('teacher'),/Secure Web Crypto required/);
   console.log('PASS: isolated cryptographic pairing primitives (NOT end-to-end authentication)');
 })().catch(e=>{console.error(e);process.exitCode=1});
