@@ -1,0 +1,28 @@
+'use strict';
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const pairing = require('../secure-pairing.js');
+async function rejects(fn, message){await assert.rejects(fn,message)}
+(async()=>{
+  const teacher=await pairing.identity('teacher');
+  const board=await pairing.identity('board');
+  const t=await pairing.session('123456',teacher,board);
+  const b=await pairing.session('123456',board,teacher);
+  const tp=await pairing.proof(t,'teacher');
+  const bp=await pairing.proof(b,'board');
+  assert.equal(await pairing.verify(b,'teacher',tp),true,'Board verifies Teacher');
+  assert.equal(await pairing.verify(t,'board',bp),true,'Teacher verifies Board');
+  assert.equal(await pairing.comparisonCode(t),await pairing.comparisonCode(b),'matching comparison code');
+  assert.equal(await pairing.verify(t,'teacher',bp),false,'wrong role proof rejected');
+  assert.equal(await pairing.verify(t,'board','00'.repeat(32)),false,'forged proof rejected');
+  assert.equal(await pairing.verify(t,'board','not-a-proof'),false,'malformed proof rejected');
+  const otherRoom=await pairing.session('654321',board,teacher);
+  assert.equal(await pairing.verify(otherRoom,'teacher',tp),false,'cross-room proof rejected');
+  const newBoard=await pairing.identity('board');
+  const newSession=await pairing.session('123456',teacher,newBoard);
+  assert.equal(await pairing.verify(newSession,'board',bp),false,'old peer proof rejected');
+  await rejects(()=>pairing.session('12345',teacher,board),/Invalid room/);
+  await rejects(()=>pairing.session('123456',teacher,teacher),/Invalid participants/);
+  await rejects(()=>pairing.session('123456',teacher,{...board,nonce:teacher.nonce}),/Nonce reuse/);
+  console.log('PASS: isolated cryptographic pairing primitives (NOT end-to-end authentication)');
+})().catch(e=>{console.error(e);process.exitCode=1});
