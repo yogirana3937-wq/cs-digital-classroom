@@ -22,3 +22,4 @@ jobs:
           node tests/sw-regression.test.cjs
           node tests/board-admission.test.cjs
           node tests/board-admission-behavior.test.cjs
+          node tests/pairing-crypto.test.cjs
