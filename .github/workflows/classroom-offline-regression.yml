@@ -24,3 +24,4 @@ jobs:
           node tests/board-admission-behavior.test.cjs
           node tests/pairing-crypto.test.cjs
           node tests/pairing-gate.test.cjs
+          node tests/practical-approval-regression.test.cjs
